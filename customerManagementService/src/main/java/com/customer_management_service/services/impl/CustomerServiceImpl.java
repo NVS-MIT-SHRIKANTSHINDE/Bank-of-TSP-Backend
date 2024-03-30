@@ -4,12 +4,19 @@ import com.customer_management_service.entites.Customer;
 import com.customer_management_service.exceptions.ResourceNotFoundException;
 import com.customer_management_service.repositories.CustomerRepository;
 import com.customer_management_service.services.CustomerService;
+import com.customer_management_service.services.OTPService;
+import com.customer_management_service.utils.DataSecurityUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContextException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,15 +27,46 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerRepository customerRepository;
 
     @Autowired
+    private OTPService otpService;
+
+    @Autowired
+    DataSecurityUtil dataSecurityUtil;
+
+    @Autowired
+    private AadharValidator aadharValidator;
+
+
+    @Autowired
     private RestTemplate restTemplate;
 
     private Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
     @Override
-    public Customer create(Customer customer) {
-
-        String userId = UUID.randomUUID().toString();
+    public Customer create(Customer customer) throws Exception {
+        UUID uuid=UUID.randomUUID();
+        String userId = uuid.toString().replace("-","").substring(0,20);
         customer.setCustomerId(userId);
+        HashMap<String,String>sensitiveData=new HashMap<>();
+        sensitiveData.put("mobileNumber",customer.getPhone());
+        sensitiveData.put("emailId",customer.getEmail());
+        dataSecurityUtil.maskData(sensitiveData);
+        customer.setPhone(sensitiveData.get("mobileNumber"));
+        customer.setEmail(sensitiveData.get("emailId"));
+
+        if(StringUtils.hasText(customer.getAadarNumber())){
+            if(aadharValidator.isValidAadhaarNumber(customer.getAadarNumber())){
+                customer.setAadarNumber(DataSecurityUtil.maskAadharNumber(customer.getAadarNumber()));
+            }
+            else {
+                logger.warn("Invalid Aadhaar Number ");
+                customer.setAadarNumber(null);
+
+            }
+        }else {
+            throw new ApplicationContextException("Aadhaar number is not given by the user");
+        }
+        customer.setAccountCreationDate(LocalDateTime.now());
+        customer.setAccountUpdateDate(LocalDateTime.now());
         return customerRepository.save(customer);
     }
 
@@ -52,9 +90,10 @@ public class CustomerServiceImpl implements CustomerService {
         customer1.setPhone(customer.getPhone());
         customer1.setEmail(customer.getEmail());
         customer1.setAddress(customer.getAddress());
-        customer1.setPassword(customer.getPassword());
-
-
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        var password = encoder.encode(customer.getPassword());
+        customer1.setPassword(password);
+        customer1.setAccountUpdateDate(LocalDateTime.now());
         return customerRepository.save(customer1);
     }
 
@@ -72,21 +111,35 @@ public class CustomerServiceImpl implements CustomerService {
         this.customerRepository.delete(customer);
     }
 
-    @Override
-    public Customer login(String customerId, String password) {
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer with given id not found"));
 
+
+
+    public boolean loginWithPassword(String customerId, String password) {
+        Customer customer = customerRepository.findById(customerId).orElse(null);
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        if (!encoder.matches(password, customer.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+        var newpass = encoder.encode(password);
+        if(newpass.equals(customer.getPassword())){
+            return true;
         }
 
-        return customer;
+//        if (encoder.matches(password, customer.getPassword())) {
+//            return true;
+//        }
+        return false; // Invalid credentials
     }
 
+    public String loginWithOTP(String phone) {
+        Customer customer = customerRepository.findByPhone(phone);
+        if (customer != null) {
+            // Generate OTP
+            String otp = otpService.generateOTP(phone);
+            // Send OTP via email, SMS, etc. (implement this part)
+            // Example: smsService.sendSMS(phone, "Your OTP is: " + otp);
+            return otp; // OTP sent successfully
+        }
+        throw new RuntimeException("Customer Details Not Found");
+    }
 
-    
 
 
 }
