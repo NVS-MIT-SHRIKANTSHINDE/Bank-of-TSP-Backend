@@ -1,5 +1,6 @@
 package com.customer_management_service.services;
 
+import com.customer_management_service.entites.Account;
 import com.customer_management_service.entites.Customer;
 
 import java.util.List;
@@ -8,7 +9,7 @@ public interface CustomerService {
 
     // create
 
-    Customer create(Customer customer);
+    Customer create(Customer customer) throws Exception;
 
 
     // get all
@@ -29,7 +30,10 @@ public interface CustomerService {
     void delete(String id);
 
 
-    Customer login(String customerId, String password);
+
+    public boolean loginWithPassword(String customerId, String password);
+    public String loginWithOTP(String phone) ;
 
 
-}
+
+    }

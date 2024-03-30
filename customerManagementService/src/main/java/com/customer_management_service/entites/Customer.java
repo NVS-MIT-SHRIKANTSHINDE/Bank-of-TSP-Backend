@@ -1,6 +1,8 @@
 package com.customer_management_service.entites;
 
 
+import java.time.LocalDateTime;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import jakarta.persistence.*;
@@ -24,13 +26,10 @@ public class Customer {
     private String email;
     private String address;
     private String password;
+    private String aadarNumber;
+    private LocalDateTime accountCreationDate;
+    private LocalDateTime accountUpdateDate;
     
-    public void setPassword(String password) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        this.password = encoder.encode(password);
-    }
-    public String getPassword() {
-        return this.password;
-    }
+
 
 }
