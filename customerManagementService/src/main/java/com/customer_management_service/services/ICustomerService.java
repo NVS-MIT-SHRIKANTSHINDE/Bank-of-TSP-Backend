@@ -1,11 +1,10 @@
 package com.customer_management_service.services;
 
-import com.customer_management_service.entites.Account;
 import com.customer_management_service.entites.Customer;
 
 import java.util.List;
 
-public interface CustomerService {
+public interface ICustomerService {
 
     // create
 
@@ -33,7 +32,6 @@ public interface CustomerService {
 
     public boolean loginWithPassword(String customerId, String password);
     public String loginWithOTP(String phone) ;
-
 
 
     }

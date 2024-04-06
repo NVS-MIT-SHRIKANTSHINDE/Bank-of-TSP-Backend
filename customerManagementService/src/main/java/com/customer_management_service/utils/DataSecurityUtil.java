@@ -1,19 +1,24 @@
 package com.customer_management_service.utils;
 
 
+
 import com.customer_management_service.entites.Customer;
 import com.customer_management_service.repositories.CustomerRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-
+/**
+ * @author RutvikJ
+ */
 
 @Component
+@Slf4j
 public class DataSecurityUtil {
 
-    @Autowired(required = true)
+    @Autowired
     private CustomerRepository customerRepository;
 
     public boolean authenticateAadharWithMobile(String aadharNumber, String mobileNumber) {
@@ -49,9 +54,11 @@ public class DataSecurityUtil {
     public String maskData(Map<String, String> data) {
         if (data.containsKey("mobileNumber")) {
             String mobileNumber = data.get("mobileNumber");
-            if (mobileNumber.length() > 4) {
-                String maskedNumber = "*" + mobileNumber.substring(mobileNumber.length() - 4);
+            if (mobileNumber.length() >= 10 && mobileNumber.length() < 12) {
+                String maskedNumber = "******" + mobileNumber.substring(mobileNumber.length() - 4);
                 data.put("mobileNumber", maskedNumber);
+            }else {
+                log.debug("invalid mobile number , input mobile is less than 10 digits");
             }
         }
 
@@ -60,7 +67,7 @@ public class DataSecurityUtil {
             if (email.contains("@")) {
                 String[] parts = email.split("@");
                 if (parts.length == 2) {
-                    data.put("emailId", "*@" + parts[1]);
+                    data.put("emailId", "******@" + parts[1]);
                 }
             }
         }

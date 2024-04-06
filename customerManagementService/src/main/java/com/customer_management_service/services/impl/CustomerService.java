@@ -3,13 +3,14 @@ package com.customer_management_service.services.impl;
 import com.customer_management_service.entites.Customer;
 import com.customer_management_service.exceptions.ResourceNotFoundException;
 import com.customer_management_service.repositories.CustomerRepository;
-import com.customer_management_service.services.CustomerService;
+import com.customer_management_service.services.ICustomerService;
 import com.customer_management_service.services.OTPService;
 import com.customer_management_service.utils.DataSecurityUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -22,7 +23,7 @@ import java.util.UUID;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Service
-public class CustomerServiceImpl implements CustomerService {
+public class CustomerService implements ICustomerService {
     @Autowired
     private CustomerRepository customerRepository;
 
@@ -39,38 +40,48 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private RestTemplate restTemplate;
 
-    private Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
+    @Value("${com.security.isSecurityEnabled}")
+    private boolean securityEnabled;
+
+    private Logger logger = LoggerFactory.getLogger(CustomerService.class);
 
     @Override
     public Customer create(Customer customer) throws Exception {
-        UUID uuid=UUID.randomUUID();
-        String userId = uuid.toString().replace("-","").substring(0,20);
-        customer.setCustomerId(userId);
-        HashMap<String,String>sensitiveData=new HashMap<>();
-        sensitiveData.put("mobileNumber",customer.getPhone());
-        sensitiveData.put("emailId",customer.getEmail());
-        dataSecurityUtil.maskData(sensitiveData);
-        customer.setPhone(sensitiveData.get("mobileNumber"));
-        customer.setEmail(sensitiveData.get("emailId"));
+    	
+    	        UUID uuid=UUID.randomUUID();
+    	        String userId = uuid.toString().replace("-","").substring(0,20);
+    	        customer.setCustomerId(userId);
+                if(securityEnabled){
+                    HashMap<String,String>sensitiveData=new HashMap<>();
+                    sensitiveData.put("mobileNumber",customer.getPhone());
+                    sensitiveData.put("emailId",customer.getEmail());
+                    dataSecurityUtil.maskData(sensitiveData);
+                    customer.setPhone(sensitiveData.get("mobileNumber"));
+                    customer.setEmail(sensitiveData.get("emailId"));
 
-        if(StringUtils.hasText(customer.getAadarNumber())){
-            if(aadharValidator.isValidAadhaarNumber(customer.getAadarNumber())){
-                customer.setAadarNumber(DataSecurityUtil.maskAadharNumber(customer.getAadarNumber()));
-            }
-            else {
-                logger.warn("Invalid Aadhaar Number ");
-                customer.setAadarNumber(null);
+                    if(StringUtils.hasText(customer.getAadarNumber())){
+                        if(aadharValidator.isValidAadhaarNumber(customer.getAadarNumber())){
+                            customer.setAadarNumber(DataSecurityUtil.maskAadharNumber(customer.getAadarNumber()));
+                        }
+                        else {
+                            logger.warn("Invalid Aadhaar Number ");
+                            customer.setAadarNumber(null);
 
-            }
-        }else {
-            throw new ApplicationContextException("Aadhaar number is not given by the user");
-        }
-        customer.setAccountCreationDate(LocalDateTime.now());
-        customer.setAccountUpdateDate(LocalDateTime.now());
-        return customerRepository.save(customer);
-    }
+                        }
+                    }else {
+                        throw new ApplicationContextException("Aadhaar number is not given by the user");
+                    }
+                }
+    	        customer.setAccountCreationDate(LocalDateTime.now());
+    	        customer.setAccountUpdateDate(LocalDateTime.now());
+                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+                customer.setPassword(encoder.encode(customer.getPassword()));
+    	        return customerRepository.save(customer);
+    	    }
+    	  
+    	  
 
-    @Override
+	@Override
     public List<Customer> getAll() {
         return customerRepository.findAll();
     }
@@ -116,17 +127,16 @@ public class CustomerServiceImpl implements CustomerService {
 
     public boolean loginWithPassword(String customerId, String password) {
         Customer customer = customerRepository.findById(customerId).orElse(null);
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        var newpass = encoder.encode(password);
-        if(newpass.equals(customer.getPassword())){
-            return true;
+        if (customer != null) {
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            if (encoder.matches(password,customer.getPassword())) {
+                return true;
+            }
         }
-
-//        if (encoder.matches(password, customer.getPassword())) {
-//            return true;
-//        }
-        return false; // Invalid credentials
+        return false;
     }
+    
+
 
     public String loginWithOTP(String phone) {
         Customer customer = customerRepository.findByPhone(phone);
@@ -135,6 +145,7 @@ public class CustomerServiceImpl implements CustomerService {
             String otp = otpService.generateOTP(phone);
             // Send OTP via email, SMS, etc. (implement this part)
             // Example: smsService.sendSMS(phone, "Your OTP is: " + otp);
+            
             return otp; // OTP sent successfully
         }
         throw new RuntimeException("Customer Details Not Found");

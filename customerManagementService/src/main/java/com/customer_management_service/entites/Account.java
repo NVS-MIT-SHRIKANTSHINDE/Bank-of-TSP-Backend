@@ -54,6 +54,7 @@ public class Account {
     public String getAccountBranch() {
         return accountBranch;
     }
+    
 
     public void setAccountBranch(String accountBranch) {
         this.accountBranch = accountBranch;
