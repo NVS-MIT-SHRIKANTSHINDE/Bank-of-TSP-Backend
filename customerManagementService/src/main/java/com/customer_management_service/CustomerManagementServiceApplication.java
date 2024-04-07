@@ -23,6 +23,7 @@ public class CustomerManagementServiceApplication {
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allowed HTTP methods
 //                        .allowedHeaders("*") // Allowed request headers (you can customize this based on your requirements)
                         .allowCredentials(true);
+                System.out.println("Customer server ");
             }
         };
     }

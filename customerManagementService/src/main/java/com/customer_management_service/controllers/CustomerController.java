@@ -97,4 +97,10 @@ public class CustomerController {
 
         }
 
+    @PostMapping("/login/verify/{phoneNo}/{otp}")
+    public boolean verifyOtp(@PathVariable String phoneNo, @PathVariable String otp){
+        return otpService.verifyOTP(phoneNo, otp);
+    }
+
+
 }
