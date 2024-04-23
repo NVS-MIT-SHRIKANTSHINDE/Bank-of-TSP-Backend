@@ -16,25 +16,24 @@ spring:
     name: TransactionService
   config:
     import: optional:configserver:http://localhost:8085
+  main:
+    web-application-type: reactive
 
 eureka:
   instance:
     prefer-ip-address: true
+    another-property: true
   client:
     fetch-registry: true
     register-with-eureka: true
     service-url:
-      defaultZone : http://localhost:8761/eureka
+      defaultZone: http://localhost:8761/eureka
 
 logging:
   level:
     root: WARN
-    org.springframework.web: DEBUG
 
 com:
   security:
     isSecurityEnabled: true
-    
 
-  main:
-    web-application-type: reactive
