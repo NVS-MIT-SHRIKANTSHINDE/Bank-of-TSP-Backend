@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.hc.core5.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +19,7 @@ import com.TransactionService1.TransactionService1.entity.TransferRequest;
 import com.TransactionService1.TransactionService1.service.TransactionService;
 
 @RestController
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/transaction")
 public class TransactionController {
 
@@ -44,9 +46,11 @@ public class TransactionController {
         
     }
 
+    
     @GetMapping("/history/{accountId}")
     public ResponseEntity<List<Transaction>> getTransactionHistory(@PathVariable String accountId) {
         List<Transaction> transactions = transactionService.getTransactionHistory(accountId);
         return ResponseEntity.ok(transactions);
     }
+
 }

@@ -36,11 +36,10 @@ public class Transaction {
     private String fromAccount;
 
     private String toAccount;
+    
 
     // Constructors, getters, and setters
 
-    @Transient
-   Account account;
 
     private String encryptPin(String pin) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();

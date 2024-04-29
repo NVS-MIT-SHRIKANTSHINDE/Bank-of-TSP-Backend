@@ -63,8 +63,9 @@ public class TransactionService {
             transaction.setStatus("Successful");
             transaction.setAmount(fromAccount.getBalance() - transferRequest.getAmount());
             transaction.setFromAccount(fromAccount.getAccountId());
-
+            transaction.setToAccount(toAccount.getAccountId());
             transactionRepository.save(transaction);
+
             return transaction;
 
         } catch (Exception e) {
@@ -73,6 +74,8 @@ public class TransactionService {
             throw new TransactionException("Transaction failed");
         }
     }
+    
+    
     private boolean validateTransactionPin(Account account, String transactionPin) {
         // Validate transaction PIN logic
         if (account != null) {
