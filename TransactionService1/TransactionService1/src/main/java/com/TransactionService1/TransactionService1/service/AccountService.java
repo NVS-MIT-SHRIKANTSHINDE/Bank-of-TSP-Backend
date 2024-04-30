@@ -21,8 +21,14 @@ public class AccountService {
         return restTemplate.getForObject("http://ACCOUNT-SERVICE/account/" + accountId, Account.class);
     }
 
-    public void updateAccount(Account account) {
-        restTemplate.put("http://ACCOUNT-SERVICE/account/update", account);
+    public String updateAccount(Account account) {
+        try {
+            restTemplate.put("http://ACCOUNT-SERVICE/account/update", account);
+            return "Account updated successfully";
+        } catch (Exception e) {
+            return "Error updating account: " + e.getMessage();
+        }
+
     }
     public Account addMoney(String accountId, double d, String customerId) {
         String url = "http://ACCOUNT-SERVICE/account/addmoney/{accountID}?amount={amount}&customerId={customerId}";

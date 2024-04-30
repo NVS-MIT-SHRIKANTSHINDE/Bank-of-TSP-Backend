@@ -61,7 +61,8 @@ public class TransactionService {
             transaction.setTransactionDate(LocalDate.now());
             transaction.setDescription("Money transferred Sucessfully");
             transaction.setStatus("Successful");
-            transaction.setAmount(fromAccount.getBalance() - transferRequest.getAmount());
+            transaction.setAmount(transferRequest.getAmount());
+            transaction.setFromAccount(fromAccount.getAccountId());  // Set fromAccount ID
             transaction.setFromAccount(fromAccount.getAccountId());
             transaction.setToAccount(toAccount.getAccountId());
             transactionRepository.save(transaction);
