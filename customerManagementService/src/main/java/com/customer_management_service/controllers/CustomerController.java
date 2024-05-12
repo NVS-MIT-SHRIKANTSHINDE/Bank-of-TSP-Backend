@@ -77,19 +77,15 @@ public class CustomerController {
         return ResponseEntity.status(HttpStatus.OK).body(customerService.update(customerId, customer));
 
     }
-    
 
 
     @PostMapping("/login/password")
-    public String loginWithPassword(@RequestBody Customer customer  ) {
-        if (customerService.loginWithPassword(customer.getCustomerId(),customer.getPassword())) {
-
-            return "Login successful";
-        }
-        else {
-            return "Invalid credentials";
-        }
+    public ResponseEntity<Customer> loginWithPassword(@RequestBody Customer customer) {
+        Customer loggedInCustomer = customerService.loginWithPassword(customer.getCustomerId(), customer.getPassword());
+        loggedInCustomer.setPassword(null); // Or you can set it to an empty string or any default value
+        return ResponseEntity.ok(loggedInCustomer);
     }
+    
 
     @PostMapping("/login/otp")
     public String loginWithOTP(@RequestBody Customer customer) {

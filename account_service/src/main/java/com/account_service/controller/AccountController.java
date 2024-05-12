@@ -21,7 +21,6 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
-
     //Create Account
     @PostMapping
     public ResponseEntity<Account> createAccount(@RequestBody Account account)
@@ -38,6 +37,8 @@ public class AccountController {
 
     // Get Accounts using Customer ID
 
+   
+    
     @GetMapping("/user/{customerId}")
     public ResponseEntity<List<Account>> getAccountsUsingCustomerID(@PathVariable String customerId)
     {
@@ -64,7 +65,7 @@ public class AccountController {
     @PutMapping("/addmoney/{accountID}")
     public ResponseEntity<Account> addMoney(@PathVariable String accountID,@RequestParam int amount,  @RequestParam String customerId)
     {
-        return ResponseEntity.status(HttpStatus.OK).body(accountService.addBalance(accountID,amount, customerId));
+        return ResponseEntity.status(HttpStatus.OK).body(accountService.addBalance(accountID,amount));
     }
 
 
@@ -76,6 +77,11 @@ public class AccountController {
     }
 
     // Delete Account
+    @PutMapping("/update")
+    public  void  UpdateBalance(@RequestBody Account account)
+    {
+    	accountService.updateBalance(account);
+    }
 
     @DeleteMapping("/{accountId}")
     public ApiResponse deleteAccount(@PathVariable String accountId)

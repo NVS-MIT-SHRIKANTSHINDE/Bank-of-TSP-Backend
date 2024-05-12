@@ -22,7 +22,7 @@ public interface AccountService {
     Account updateAccount(String id, Account account);
 
     // Update Balance
-    Account addBalance(String id, int amount, String customerId);
+    Account addBalance(String accountId, int amount);
     Account withdrawBalance(String id, int amount, String customerId);
 
     // Delete
@@ -31,6 +31,8 @@ public interface AccountService {
     void deleteAccountUsingCustomerId(String customerId);
 
 	Account login(String accountId, String transactionPin);
+
+	void updateBalance(Account account);
 
 
 	

@@ -17,7 +17,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class AccountServiceImpl implements AccountService {
+public class
+AccountServiceImpl implements AccountService {
 
     @Autowired
     private RestTemplate restTemplate;
@@ -26,10 +27,13 @@ public class AccountServiceImpl implements AccountService {
 
     @Autowired
     private AccountRepository accountRepository;
+    
+    
 
     @Override
     public Account create(Account account) {
-        String accountId = UUID.randomUUID().toString();
+        UUID uuid = UUID.randomUUID();
+        String accountId = uuid.toString().replace("-","").substring(0,20);
         account.setAccountId(accountId);
 
         Date currentDate = new Date();
@@ -70,16 +74,16 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account addBalance(String id, int amount, String customerId) {
-        Account newAccount = accountRepository.findById(id).orElseThrow(() ->
+    public Account addBalance(String accountId, int amount) {
+        Account newAccount = accountRepository.findById(accountId).orElseThrow(() ->
                 new ResourceNotFoundException("Account with given id not found try again with correct details !!"));
 
-        Customer customer = restTemplate.getForObject("http://CUSTOMER-SERVICE/customer/" + customerId, Customer.class);
+        Account account = restTemplate.getForObject("http://ACCOUNT-SERVICE/account/" + accountId, Account.class);
 
-        if (customer == null) {
+        if (account == null) {
             throw new ResourceNotFoundException("Customer with given id not found try again with correct details !!");
         } else {
-            int newBalance = newAccount.getBalance() + amount;
+            double newBalance = newAccount.getBalance() + amount;
             newAccount.setBalance(newBalance);
             newAccount.setLastActivity(new Date());
             return accountRepository.save(newAccount);
@@ -96,7 +100,7 @@ public class AccountServiceImpl implements AccountService {
         if (customer == null) {
             throw new ResourceNotFoundException("Customer with given id not found try again with correct details !!");
         } else {
-            int newBalance = newAccount.getBalance() - amount;
+            double newBalance = newAccount.getBalance() - amount;
             newAccount.setBalance(newBalance);
             newAccount.setLastActivity(new Date());
             return accountRepository.save(newAccount);
@@ -132,5 +136,22 @@ public class AccountServiceImpl implements AccountService {
         return account;
     }
 
+    @Override
+    public void updateBalance(Account account) {
+        List<Account> acc = getAccounts();
+        var updateAccount = acc.stream()
+                .filter(x -> x.getAccountId().equals(account.getAccountId()))
+                .findFirst();
+
+        if (updateAccount.isPresent()) {
+            Account foundAccount = updateAccount.get();
+            foundAccount.setBalance(account.getBalance());
+
+            // Save the updated account
+            accountRepository.save(foundAccount);
+        } else {
+            throw new ResourceNotFoundException("Account with id " + account.getAccountId() + " not found");
+        }
+    }
 
 }

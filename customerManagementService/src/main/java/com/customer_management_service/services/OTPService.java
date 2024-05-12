@@ -15,7 +15,8 @@ public class OTPService {
 	
 	 private Map<String, String> otpStore = new HashMap<>();
 
-	    public String generateOTP(String phone) {
+	    public String
+		generateOTP(String phone) {
 	        // Generate OTP
 	        String otp = generateRandomOTP();
 	        // Store OTP for user
@@ -40,3 +41,4 @@ public class OTPService {
 	        return otpBuilder.toString();
 	    }
 }
+

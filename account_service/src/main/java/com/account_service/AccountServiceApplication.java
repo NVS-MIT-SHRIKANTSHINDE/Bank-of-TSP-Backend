@@ -18,9 +18,12 @@ public class AccountServiceApplication {
 	   @Override
 	   public void addCorsMappings(CorsRegistry reg) {
 	    reg.addMapping("/**").allowedOrigins("*");
+	    System.out.println("Account service");
 	   }
 	  };
 	  
+	  
 	 }
+	
 
 }

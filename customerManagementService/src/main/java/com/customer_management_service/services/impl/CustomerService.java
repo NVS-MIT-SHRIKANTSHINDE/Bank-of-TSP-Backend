@@ -125,15 +125,19 @@ public class CustomerService implements ICustomerService {
 
 
 
-    public boolean loginWithPassword(String customerId, String password) {
+    public Customer loginWithPassword(String customerId, String password) {
         Customer customer = customerRepository.findById(customerId).orElse(null);
         if (customer != null) {
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             if (encoder.matches(password,customer.getPassword())) {
-                return true;
+                return customer;
             }
+            else {
+                throw new RuntimeException("Password does not match");
+            }
+        }else {
+            throw new RuntimeException("Customer details ot found frm the records");
         }
-        return false;
     }
     
 

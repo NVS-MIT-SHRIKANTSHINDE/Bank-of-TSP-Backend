@@ -30,12 +30,12 @@ public class AccountService {
         }
 
     }
-    public Account addMoney(String accountId, double d, String customerId) {
-        String url = "http://ACCOUNT-SERVICE/account/addmoney/{accountID}?amount={amount}&customerId={customerId}";
+    public Account addMoney(String accountId, double d) {
+        String url = "http://ACCOUNT-SERVICE/account/addmoney/{accountID}?amount={amount}";
         Map<String, String> params = new HashMap<>();
         params.put("accountID", accountId);
         params.put("amount", String.valueOf(d));
-        params.put("customerId", customerId);
+
 
         return restTemplate.exchange(url, HttpMethod.PUT, null, Account.class, params).getBody();
     }

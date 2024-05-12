@@ -4,7 +4,7 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import jakarta.*;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -31,7 +31,7 @@ public class Account {
     @DateTimeFormat
     private Date lastActivity;
 
-    private int balance;
+    private double balance;
 
     private String customerId;
 

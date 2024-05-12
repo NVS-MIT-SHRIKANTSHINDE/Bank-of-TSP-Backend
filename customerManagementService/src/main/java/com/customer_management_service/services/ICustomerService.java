@@ -30,7 +30,7 @@ public interface ICustomerService {
 
 
 
-    public boolean loginWithPassword(String customerId, String password);
+    public Customer loginWithPassword(String customerId, String password);
     public String loginWithOTP(String phone) ;
 
 

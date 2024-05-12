@@ -63,7 +63,7 @@ public class TransactionService {
             transaction.setStatus("Successful");
             transaction.setAmount(transferRequest.getAmount());
             transaction.setFromAccount(fromAccount.getAccountId());  // Set fromAccount ID
-            transaction.setFromAccount(fromAccount.getAccountId());
+
             transaction.setToAccount(toAccount.getAccountId());
             transactionRepository.save(transaction);
 

@@ -51,6 +51,7 @@ public class DataSecurityUtil {
 
         return maskedAadhar.toString();
     }
+
     public String maskData(Map<String, String> data) {
         if (data.containsKey("mobileNumber")) {
             String mobileNumber = data.get("mobileNumber");
